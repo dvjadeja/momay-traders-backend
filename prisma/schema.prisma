@@ -21,33 +21,8 @@ model Role {
   updatedAt    DateTime    @updatedAt
   userRoles    UserRole[] // one role can have multiple users
   users        User[]
-  permission   Permission? @relation(fields: [permissionId], references: [id])
-  permissionId Int?
+  rolePermissions RolePermission[]
 }
-
-/**
- * Example Records
- * {
- * id: 1,
- * name: 'admin',
- * description: 'Admin role',
- * permissions: [
- * { id: 1, code: 'CREATE_RECORD', description: 'Create record' },
- * { id: 2, code: 'READ_RECORD', description: 'Read record' },
- * { id: 3, code: 'UPDATE_RECORD', description: 'Update record' },
- * { id: 4, code: 'DELETE_RECORD', description: 'Delete record' },
- * ]
- * },
- * {
- * id: 2,
- * name: 'manager',
- * description: 'Manager role',
- * permissions: [
- * { id: 1, code: 'CREATE_RECORD', description: 'Create record' },
- * { id: 2, code: 'READ_RECORD', description: 'Read record' },
- * { id: 3, code: 'UPDATE_RECORD', description: 'Update record' },
- * }
- */
 
 model Permission {
   id          Int      @id @default(autoincrement())
@@ -55,7 +30,17 @@ model Permission {
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  roles       Role[]
+  rolePermissions RolePermission[]
+}
+
+model RolePermission {
+  roleId       Int
+  permissionId Int
+
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
 }
 
 model UserRole {

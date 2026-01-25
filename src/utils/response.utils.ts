@@ -45,7 +45,7 @@ export const handleSuccess = (res: Response, resObj: Res) => {
     });
   }
 
-  https: return res.status(status || 200).json({
+  return res.status(status || 200).json({
     code: resObj.code || 'SUCCESS',
     ...rest,
   });

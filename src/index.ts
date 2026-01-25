@@ -4,6 +4,7 @@ import cors from 'cors';
 import { config } from 'dotenv';
 import { requestMiddleware } from './middleware/logger';
 import { handleSuccess } from './utils/response.utils';
+import { apiRouter } from 'src/routes';
 
 config();
 
@@ -24,5 +25,7 @@ app.get('/', (req: Request, res: Response) => {
     message: 'Express App: Sample App',
   });
 });
+
+app.use('/api/v1', apiRouter);
 
 app.listen(process.env.PORT, () => console.log(`Server Up:${process.env.PORT}`));
