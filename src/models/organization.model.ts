@@ -1,5 +1,16 @@
 import { model, Schema } from 'mongoose';
 
+const subscriptionHistorySchema = {
+  startDate: {
+    type: Date,
+    required: true,
+  },
+  endDate: {
+    type: Date,
+    required: true,
+  },
+};
+
 const organizationSchema = new Schema(
   {
     // Company Details
@@ -33,17 +44,21 @@ const organizationSchema = new Schema(
     panNumber: String,
 
     // Trail
-    trialUsage: {
+    isTrailActive: {
+      type: Boolean,
+      default: true,
+    },
+    isTrialExpired: {
       type: Boolean,
       default: false,
     },
     trialStartDate: {
       type: Date,
-      default: null,
+      default: new Date().toISOString(),
     },
     trialEndDate: {
       type: Date,
-      default: null,
+      default: new Date().toISOString(),
     },
 
     // Subscription Details
@@ -63,6 +78,10 @@ const organizationSchema = new Schema(
       type: String,
       enum: ['ACTIVE', 'INACTIVE', 'EXPIRED'],
       default: 'INACTIVE',
+    },
+    subscriptionHistory: {
+      type: [subscriptionHistorySchema],
+      default: [],
     },
 
     // Stats
