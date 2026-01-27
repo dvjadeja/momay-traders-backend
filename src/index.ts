@@ -31,4 +31,11 @@ app.get('/', (req: Request, res: Response) => {
   });
 });
 
+// Health check
+app.get('/health', (req: Request, res: Response) => {
+  handleSuccess(res, {
+    message: 'Health check',
+  });
+});
+
 app.listen(process.env.PORT, () => console.log(`Server Up:${process.env.PORT}`));
