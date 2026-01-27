@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from 'src/utils/auth.utils';
 import { handleErrors } from 'src/utils/response.utils';
-import { prisma } from 'src/prisma';
 
 export const isAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
   const auth = req.headers.authorization;
@@ -28,52 +27,52 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
 
       if (!userId || Number.isNaN(userId)) throw new Error('Invalid token payload');
 
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: {
-          id: true,
-          username: true,
-          firstName: true,
-          lastName: true,
-          roleId: true,
-          organizationId: true,
-          role: {
-            select: {
-              id: true,
-              name: true,
-              rolePermissions: {
-                select: {
-                  permission: {
-                    select: { code: true },
-                  },
-                },
-              },
-            },
-          },
-        },
-      });
+      // const user = await prisma.user.findUnique({
+      //   where: { id: userId },
+      //   select: {
+      //     id: true,
+      //     username: true,
+      //     firstName: true,
+      //     lastName: true,
+      //     roleId: true,
+      //     organizationId: true,
+      //     role: {
+      //       select: {
+      //         id: true,
+      //         name: true,
+      //         rolePermissions: {
+      //           select: {
+      //             permission: {
+      //               select: { code: true },
+      //             },
+      //           },
+      //         },
+      //       },
+      //     },
+      //   },
+      // });
 
-      if (!user) throw new Error('User not found');
+      // if (!user) throw new Error('User not found');
 
-      const permissions = Array.from(
-        new Set(
-          user.role.rolePermissions.map((rp: { permission: { code: string } }) => rp.permission.code),
-        ),
-      ).map((code) => ({ code }));
+      // const permissions = Array.from(
+      //   new Set(
+      //     user.role.rolePermissions.map((rp: { permission: { code: string } }) => rp.permission.code),
+      //   ),
+      // ).map((code) => ({ code }));
 
-      res.locals.user = {
-        id: user.id,
-        username: user.username,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        roleId: user.roleId,
-        organizationId: user.organizationId,
-        role: {
-          id: user.role.id,
-          name: user.role.name,
-          permissions,
-        },
-      };
+      // res.locals.user = {
+      //   id: user.id,
+      //   username: user.username,
+      //   firstName: user.firstName,
+      //   lastName: user.lastName,
+      //   roleId: user.roleId,
+      //   organizationId: user.organizationId,
+      //   role: {
+      //     id: user.role.id,
+      //     name: user.role.name,
+      //     permissions,
+      //   },
+      // };
 
       next();
     } catch (error) {

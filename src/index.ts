@@ -18,14 +18,14 @@ app.use(express.static('public'));
 
 app.use(requestMiddleware);
 
-// app.use(requestMiddleware);
+app.use('/api/v1', apiRouter);
+
+app.use(requestMiddleware);
 
 app.get('/', (req: Request, res: Response) => {
   handleSuccess(res, {
     message: 'Express App: Sample App',
   });
 });
-
-app.use('/api/v1', apiRouter);
 
 app.listen(process.env.PORT, () => console.log(`Server Up:${process.env.PORT}`));
