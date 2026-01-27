@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { z } from 'zod';
-import { handleErrors } from 'src/utils/response.utils';
+import { handleErrors } from '../utils/response.utils';
 
 const createRoleSchema = z.object({
   name: z.enum(['SUPER_ADMIN', 'ORGANIZATION_ADMIN', 'USER']),

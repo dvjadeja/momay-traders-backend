@@ -4,7 +4,10 @@ import cors from 'cors';
 import { config } from 'dotenv';
 import { requestMiddleware } from './middleware/logger';
 import { handleSuccess } from './utils/response.utils';
-import { apiRouter } from 'src/routes';
+import { apiRouter } from './routes/index';
+import mongoose from './setup/mongo';
+
+mongoose.connection;
 
 config();
 

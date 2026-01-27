@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { createRole } from 'src/controllers/roles.controller';
-import { isAuthenticated } from 'src/middleware/authenticate';
-import { requireSuperAdmin } from 'src/middleware/authorize';
+import { createRole } from '../controllers/roles.controller';
+import { isAuthenticated } from '../middleware/authenticate';
+import { requireSuperAdmin } from '../middleware/authorize';
 
 export const rolesRouter = Router();
 

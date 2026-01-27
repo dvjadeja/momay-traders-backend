@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { handleErrors } from 'src/utils/response.utils';
+import { handleErrors } from '../utils/response.utils';
 
 export const requireSuperAdmin = (req: Request, res: Response, next: NextFunction) => {
   const user = res.locals.user;
@@ -22,8 +22,7 @@ export const requireSuperAdmin = (req: Request, res: Response, next: NextFunctio
 };
 
 export const authorizePermissions =
-  (requiredPermissionCodes: string[]) =>
-  (req: Request, res: Response, next: NextFunction) => {
+  (requiredPermissionCodes: string[]) => (req: Request, res: Response, next: NextFunction) => {
     const user = res.locals.user;
 
     if (!user) {
@@ -39,7 +38,7 @@ export const authorizePermissions =
     const required = requiredPermissionCodes?.filter(Boolean) ?? [];
     if (required.length === 0) return next();
 
-    const userCodes = new Set(user.role.permissions.map((p) => p.code));
+    const userCodes = new Set(user.role.permissions.map((p: { code: string }) => p.code));
     const hasAll = required.every((code) => userCodes.has(code));
 
     if (!hasAll) {
@@ -51,4 +50,3 @@ export const authorizePermissions =
 
     return next();
   };
-

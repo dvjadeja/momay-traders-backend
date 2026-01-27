@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { z } from 'zod';
-import { handleErrors } from 'src/utils/response.utils';
+import { handleErrors } from '../utils/response.utils';
 
 const createPermissionSchema = z.object({
   code: z.string().trim().min(1),

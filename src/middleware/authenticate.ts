@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyToken } from 'src/utils/auth.utils';
-import { handleErrors } from 'src/utils/response.utils';
+import { verifyToken } from '../utils/auth.utils';
+import { handleErrors } from '../utils/response.utils';
 
 export const isAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
   const auth = req.headers.authorization;
