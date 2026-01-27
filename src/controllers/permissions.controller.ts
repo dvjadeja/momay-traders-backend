@@ -1,6 +1,11 @@
 import type { Request, Response } from 'express';
 import { z } from 'zod';
-import { handleErrors } from '../utils/response.utils';
+
+// Models
+import { PermissionModel } from '../models';
+
+// Utils
+import { handleErrors, handleSuccess } from '../utils/response.utils';
 
 const createPermissionSchema = z.object({
   code: z.string().trim().min(1),
@@ -12,37 +17,25 @@ export const createPermission = async (req: Request, res: Response) => {
     const body = createPermissionSchema.parse(req.body);
     const code = body.code.toUpperCase();
 
-    // const existing = await prisma.permission.findUnique({ where: { code } });
-    // if (existing) {
-    //   return handleErrors(req, res, {
-    //     status: 409,
-    //     error: `Permission '${code}' already exists`,
-    //   });
-    // }
+    const existingPermission = await PermissionModel.findOne({ code });
 
-    // const permission = await prisma.permission.create({
-    //   data: {
-    //     code,
-    //     description: body.description,
-    //   },
-    //   select: {
-    //     id: true,
-    //     code: true,
-    //     description: true,
-    //     createdAt: true,
-    //     updatedAt: true,
-    //   },
-    // });
+    if (existingPermission) {
+      throw new Error(`Permission '${code}' already exists`);
+    }
 
-    // return handleSuccess(res, {
-    //   status: 201,
-    //   message: 'Permission created',
-    //   data: { permission },
-    // });
-  } catch (error) {
-    return handleErrors(req, res, {
-      status: 400,
-      error,
+    const newPermission = new PermissionModel({ code, description: body.description });
+    const savedPermission = await newPermission.save();
+
+    if (!savedPermission) {
+      throw new Error('Failed to create permission');
+    }
+
+    handleSuccess(res, {
+      status: 201,
+      message: 'Permission created successfully',
+      data: savedPermission,
     });
+  } catch (error) {
+    handleErrors(req, res, { status: 400, error });
   }
 };

@@ -1,72 +1,56 @@
 import type { Request, Response } from 'express';
 import { z } from 'zod';
-import { handleErrors } from '../utils/response.utils';
+
+// Models
+import { PermissionModel, RoleModel } from '../models';
+
+// Utils
+import { handleErrors, handleSuccess } from '../utils/response.utils';
 
 const createRoleSchema = z.object({
   name: z.enum(['SUPER_ADMIN', 'ORGANIZATION_ADMIN', 'USER']),
   description: z.string().trim().min(1).optional(),
-  permissionCodes: z.array(z.string().trim().min(1)).optional(),
+  permissions: z.array(z.string().trim().min(1)).optional(),
 });
 
 export const createRole = async (req: Request, res: Response) => {
   try {
     const body = createRoleSchema.parse(req.body);
 
-    // const existing = await prisma.role.findUnique({ where: { name: body.name } });
-    // if (existing) {
-    //   return handleErrors(req, res, {
-    //     status: 409,
-    //     error: `Role '${body.name}' already exists`,
-    //   });
-    // }
+    const existingRole = await RoleModel.findOne({ name: body.name });
 
-    // const permissionCodes = Array.from(new Set(body.permissionCodes ?? []));
+    if (existingRole) {
+      throw new Error(`Role '${body.name}' already exists`);
+    }
 
-    // const role = await prisma.role.create({
-    //   data: {
-    //     name: body.name,
-    //     description: body.description,
-    //     rolePermissions: permissionCodes.length
-    //       ? {
-    //           create: permissionCodes.map((code) => ({
-    //             permission: {
-    //               connectOrCreate: {
-    //                 where: { code },
-    //                 create: { code },
-    //               },
-    //             },
-    //           })),
-    //         }
-    //       : undefined,
-    //   },
-    //   select: {
-    //     id: true,
-    //     name: true,
-    //     description: true,
-    //     createdAt: true,
-    //     updatedAt: true,
-    //     rolePermissions: {
-    //       select: {
-    //         permission: { select: { code: true, description: true } },
-    //       },
-    //     },
-    //   },
-    // });
+    // Check whether the permission codes are valid
+    const validPermissionCodes = await PermissionModel.find({
+      _id: { $in: body.permissions },
+    });
+    console.log('🚀 ~ createRole ~ validPermissionCodes:', validPermissionCodes);
+    if (validPermissionCodes.length !== (body.permissions?.length ?? 0)) {
+      throw new Error('Invalid permission codes');
+    }
 
-    // return handleSuccess(res, {
-    //   status: 201,
-    //   message: 'Role created',
-    //   data: {
-    //     role: {
-    //       ...role,
-    //       permissions: role.rolePermissions.map((rp: { permission: { code: string; description: string | null } }) =>
-    //         rp.permission,
-    //       ),
-    //     },
-    //   },
-    // });
+    // Create the role
+    const newRole = new RoleModel({
+      name: body.name,
+      description: body.description,
+      permissions: validPermissionCodes.map((permission) => permission._id),
+    });
+    const savedRole = await newRole.save();
+
+    if (!savedRole) {
+      throw new Error('Failed to create role');
+    }
+
+    handleSuccess(res, {
+      status: 201,
+      message: 'Role created successfully',
+      data: savedRole,
+    });
   } catch (error) {
-    return handleErrors(req, res, {
+    handleErrors(req, res, {
       status: 400,
       error,
     });
