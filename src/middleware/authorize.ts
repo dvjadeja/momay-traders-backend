@@ -11,7 +11,7 @@ export const requireSuperAdmin = (req: Request, res: Response, next: NextFunctio
     });
   }
 
-  if (user.role?.name !== 'SUPER_ADMIN') {
+  if (user.role !== 'SUPER_ADMIN') {
     return handleErrors(req, res, {
       status: 403,
       error: 'Forbidden: SUPER_ADMIN only',
@@ -33,12 +33,12 @@ export const authorizePermissions =
     }
 
     // SUPER_ADMIN bypass
-    if (user.role?.name === 'SUPER_ADMIN') return next();
+    if (user.role === 'SUPER_ADMIN') return next();
 
     const required = requiredPermissionCodes?.filter(Boolean) ?? [];
     if (required.length === 0) return next();
 
-    const userCodes = new Set(user.role.permissions.map((p: { code: string }) => p.code));
+    const userCodes = new Set(user.permissions);
     const hasAll = required.every((code) => userCodes.has(code));
 
     if (!hasAll) {
