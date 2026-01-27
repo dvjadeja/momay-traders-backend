@@ -14,22 +14,21 @@ datasource db {
 }
 
 model Role {
-  id           Int         @id @default(autoincrement())
-  name         String      @unique // admin, manager, employee
-  description  String?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  userRoles    UserRole[] // one role can have multiple users
-  users        User[]
+  id              Int              @id @default(autoincrement())
+  name            String           @unique // admin, manager, employee
+  description     String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  users           User[]
   rolePermissions RolePermission[]
 }
 
 model Permission {
-  id          Int      @id @default(autoincrement())
-  code        String   @unique // e.g. CREATE_RECORD, READ_RECORD, UPDATE_RECORD, DELETE_RECORD
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              Int              @id @default(autoincrement())
+  code            String           @unique // e.g. CREATE_RECORD, READ_RECORD, UPDATE_RECORD, DELETE_RECORD
+  description     String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   rolePermissions RolePermission[]
 }
 
@@ -37,22 +36,10 @@ model RolePermission {
   roleId       Int
   permissionId Int
 
-  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 
   @@id([roleId, permissionId])
-}
-
-model UserRole {
-  id        Int      @id @default(autoincrement())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
-  role      Role     @relation(fields: [roleId], references: [id])
-  roleId    Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, roleId])
 }
 
 model Organization {
@@ -129,7 +116,6 @@ model User {
   expenditureTypes ExpenditureType[]
   transactions     Transaction[]
   expenditures     Expenditure[]
-  roles            UserRole[]
 }
 
 model Supplier {
