@@ -7,4 +7,3 @@ export const rolesRouter = Router();
 
 // POST /api/v1/roles
 rolesRouter.post('/', isAuthenticated, requireSuperAdmin, createRole);
-

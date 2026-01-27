@@ -1,8 +1,18 @@
-import { Router } from 'express';
-import { permissionsRouter } from '../routes/permissions.routes';
-import { rolesRouter } from '../routes/roles.routes';
+import { Express, Router } from 'express';
+import { organizationRouter } from './organization.routes';
+import { permissionsRouter } from './permissions.routes';
+import { rolesRouter } from './roles.routes';
+import { authRouter } from './auth.routes';
 
-export const apiRouter = Router();
+const routeRouterMap = {
+  '/organization': organizationRouter,
+  '/permissions': permissionsRouter,
+  '/roles': rolesRouter,
+  '/auth': authRouter,
+};
 
-apiRouter.use('/permissions', permissionsRouter);
-apiRouter.use('/roles', rolesRouter);
+export const makeRoutes = (app: Express) => {
+  Object.entries(routeRouterMap).forEach(([path, router]) => {
+    app.use(`/api/v1${path}`, router);
+  });
+};
