@@ -4,7 +4,7 @@ import cors from 'cors';
 import { config } from 'dotenv';
 import { requestMiddleware } from './middleware/logger';
 import { handleSuccess } from './utils/response.utils';
-import { apiRouter } from './routes/index';
+import { makeRoutes } from './routes/index';
 import mongoose from './setup/mongo';
 
 mongoose.connection;
@@ -21,7 +21,7 @@ app.use(express.static('public'));
 
 app.use(requestMiddleware);
 
-app.use('/api/v1', apiRouter);
+makeRoutes(app);
 
 app.use(requestMiddleware);
 
