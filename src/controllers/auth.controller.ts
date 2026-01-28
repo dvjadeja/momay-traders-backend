@@ -7,7 +7,7 @@ import { UserModel } from '../models';
 
 // Utils
 import { handleErrors, handleSuccess } from '../utils/response.utils';
-import { generateHash, generateToken, verifyHash } from '../utils/auth.utils';
+import { generateHash, generateToken, verifyHash, verifyToken } from '../utils/auth.utils';
 
 type PopulatedPermission = { code: string };
 type PopulatedRole = { _id: Types.ObjectId; name: string; permissions: PopulatedPermission[] };
@@ -144,6 +144,80 @@ export const loginUser = async (req: Request, res: Response) => {
         tokens: {
           accessToken,
           refreshToken,
+        },
+      },
+    });
+  } catch (error) {
+    handleErrors(req, res, {
+      status: 400,
+      error,
+    });
+  }
+};
+
+export const refreshToken = async (req: Request, res: Response) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      throw new Error('Refresh token is required');
+    }
+
+    const decoded = await verifyToken(refreshToken);
+
+    if (!decoded) {
+      throw new Error('Invalid refresh token');
+    }
+
+    const user = await UserModel.findById(decoded.userId)
+      .populate({
+        path: 'role',
+        select: 'name permissions',
+        populate: {
+          path: 'permissions',
+          select: 'code',
+        },
+      })
+      .populate('organization');
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const userRole = user.role;
+    const roleName = isPopulatedRole(userRole) ? userRole.name : null;
+    const permissions = isPopulatedRole(userRole)
+      ? userRole.permissions.map((permission) => permission.code)
+      : [];
+
+    const tokenPayload = {
+      userId: user._id,
+      role: roleName,
+      permissions,
+      organizationId: user.organization?._id,
+    };
+
+    const accessToken = await generateToken(tokenPayload, { expiresIn: '1d' });
+    const newRefreshToken = await generateToken(tokenPayload, { expiresIn: '7d' });
+
+    const userData = {
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: roleName,
+      permissions,
+    };
+
+    handleSuccess(res, {
+      status: 200,
+      message: 'Token refreshed successfully',
+      data: {
+        user: userData,
+        organization: user.organization,
+        tokens: {
+          accessToken,
+          refreshToken: newRefreshToken,
         },
       },
     });

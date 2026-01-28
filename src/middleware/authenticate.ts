@@ -17,7 +17,6 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
 
     try {
       const decoded = await verifyToken(token);
-      console.log("🚀 ~ isAuthenticated ~ decoded:", decoded)
 
       if (!decoded) throw new Error('Unauthorized access');
 
