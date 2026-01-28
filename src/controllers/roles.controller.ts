@@ -6,7 +6,6 @@ import { PermissionModel, RoleModel } from '../models';
 
 // Utils
 import { handleErrors, handleSuccess } from '../utils/response.utils';
-import { Types } from 'mongoose';
 
 const createRoleSchema = z.object({
   name: z.enum(['SUPER_ADMIN', 'ORGANIZATION_ADMIN', 'USER']),
@@ -115,7 +114,7 @@ export const getRoleByName = async (req: Request, res: Response) => {
 };
 
 const updateRoleSchema = z.object({
-  name: z.enum(['SUPER_ADMIN', 'ORGANIZATION_ADMIN', 'USER']).optional(),
+  name: z.string().trim().min(1).optional(),
   description: z.string().trim().min(1).optional(),
   permissions: z.array(z.string().trim().min(1)).optional(),
 });
@@ -140,9 +139,15 @@ export const updateRole = async (req: Request, res: Response) => {
     }
 
     if (body.permissions) {
-      existingRole.permissions = body.permissions.map(
-        (permission) => new Types.ObjectId(permission),
-      );
+      const validPermissionCodes = await PermissionModel.find({
+        _id: { $in: body.permissions },
+      });
+
+      if (validPermissionCodes.length !== (body.permissions?.length ?? 0)) {
+        throw new Error('Invalid permission codes');
+      }
+
+      existingRole.permissions = validPermissionCodes.map((permission) => permission._id);
     }
 
     const savedRole = await existingRole.save();
