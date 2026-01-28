@@ -6,7 +6,11 @@ import z from 'zod';
 export const listSuppliers = async (req: Request, res: Response) => {
   try {
     const { userId } = res.locals.user;
-    const { page, limit, search } = req.query as { page: string; limit: string; search: string };
+    const {
+      page = 1,
+      limit = 10,
+      search = '',
+    } = req.query as { page: string; limit: string; search: string };
     const skip = (Number(page) - 1) * Number(limit);
 
     const suppliers = await SupplierModel.find({
