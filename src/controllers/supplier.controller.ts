@@ -3,16 +3,17 @@ import { SupplierModel } from '../models';
 import { handleErrors, handleSuccess } from '../utils/response.utils';
 import z from 'zod';
 import { isSuperAdmin } from '../utils/auth.utils';
+import { getPagination, trimSearch } from '../utils/common';
 
 export const listSuppliers = async (req: Request, res: Response) => {
   try {
     const { organizationId, role } = res.locals.user;
 
-    const page = Math.max(Number(req.query.page) || 1, 1);
-    const limit = Math.min(Number(req.query.limit) || 10, 100);
-    const search = (req.query.search as string | undefined)?.trim();
-
-    const skip = (page - 1) * limit;
+    const search = trimSearch(req.query.search as string);
+    const { page, limit, skip } = getPagination({
+      pageProp: { pageIndex: req.query.page as string },
+      limitProp: { limitIndex: req.query.limit as string },
+    });
 
     const query: any = {
       isArchived: false,
