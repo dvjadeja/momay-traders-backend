@@ -2,35 +2,56 @@ import { Request, Response } from 'express';
 import { SupplierModel } from '../models';
 import { handleErrors, handleSuccess } from '../utils/response.utils';
 import z from 'zod';
+import { isSuperAdmin } from '../utils/auth.utils';
 
 export const listSuppliers = async (req: Request, res: Response) => {
   try {
-    const { userId } = res.locals.user;
-    const {
-      page = 1,
-      limit = 10,
-      search = '',
-    } = req.query as { page: string; limit: string; search: string };
-    const skip = (Number(page) - 1) * Number(limit);
+    const { organizationId, role } = res.locals.user;
 
-    const suppliers = await SupplierModel.find({
-      createdBy: userId,
-      ...(search && {
-        $or: [
-          { supplierName: new RegExp(search, 'i') },
-          { supplierMobileNumber: new RegExp(search, 'i') },
-          { supplierAddress: new RegExp(search, 'i') },
-        ],
-      }),
-    })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(Number(limit));
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.min(Number(req.query.limit) || 10, 100);
+    const search = (req.query.search as string | undefined)?.trim();
+
+    const skip = (page - 1) * limit;
+
+    const query: any = {
+      isArchived: false,
+    };
+
+    // Role-based filtering
+    if (!isSuperAdmin(role)) {
+      query.organization = organizationId;
+    }
+
+    // Search optimization
+    if (search) {
+      query.$text = { $search: search };
+    }
+
+    const [suppliers, total] = await Promise.all([
+      SupplierModel.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .select(
+          'supplierName supplierMobileNumber supplierAddress totalAmount pendingAmount paidAmount profilePicture isWhatsappEnabled createdAt',
+        )
+        .lean(),
+      SupplierModel.countDocuments(query),
+    ]);
 
     handleSuccess(res, {
       status: 200,
       message: 'Suppliers fetched successfully',
-      data: suppliers,
+      data: {
+        data: suppliers,
+        pagination: {
+          page,
+          limit,
+          totalRecords: total,
+          totalPages: Math.ceil(total / limit),
+        },
+      },
     });
   } catch (error) {
     handleErrors(req, res, { status: 400, error });

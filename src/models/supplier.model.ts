@@ -52,6 +52,16 @@ const supplierSchema = new Schema(
   { timestamps: true },
 );
 
+supplierSchema.index({
+  supplierName: 'text',
+  supplierMobileNumber: 'text',
+  supplierAddress: 'text',
+});
+
+supplierSchema.index({ organization: 1 });
+supplierSchema.index({ createdAt: -1 });
+supplierSchema.index({ isArchived: 1 });
+
 const SupplierModel = model('Supplier', supplierSchema);
 
 export default SupplierModel;
