@@ -4,6 +4,7 @@ import { permissionsRouter } from './permissions.routes';
 import { rolesRouter } from './roles.routes';
 import { authRouter } from './auth.routes';
 import { supplierRouter } from './supplier.routes';
+import { buyerRouter } from './buyer.routes';
 
 const routeRouterMap = {
   '/organization': organizationRouter,
@@ -11,6 +12,7 @@ const routeRouterMap = {
   '/roles': rolesRouter,
   '/auth': authRouter,
   '/suppliers': supplierRouter,
+  '/buyers': buyerRouter,
 };
 
 export const makeRoutes = (app: Express) => {
