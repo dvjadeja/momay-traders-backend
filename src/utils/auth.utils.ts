@@ -36,3 +36,15 @@ export const verifyToken = async (token: string): Promise<any> => {
     });
   });
 };
+
+export const isSuperAdmin = (role: string) => {
+  return role === 'SUPER_ADMIN';
+};
+
+export const isOrganizationAdmin = (role: string) => {
+  return role === 'ORGANIZATION_ADMIN';
+};
+
+export const isUser = (role: string) => {
+  return role === 'USER';
+};
