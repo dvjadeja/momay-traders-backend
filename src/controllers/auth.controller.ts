@@ -39,6 +39,10 @@ export const registerUser = async (req: Request, res: Response) => {
   try {
     const body = registerUserSchema.parse(req.body);
 
+    if (body.role === 'SUPER_ADMIN') {
+      throw new Error('Super admin role is not allowed to be registered');
+    }
+
     const existingUser = await UserModel.findOne({ email: body.email });
 
     if (existingUser) {
