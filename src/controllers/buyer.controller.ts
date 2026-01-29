@@ -121,12 +121,18 @@ export const createBuyer = async (req: Request, res: Response) => {
 export const getBuyerById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { organizationId } = res.locals.user;
+    const { organizationId, role } = res.locals.user;
 
-    const buyer = await BuyerModel.findOne({
+    const query: any = {
       _id: id,
-      organization: organizationId,
-    });
+    };
+
+    // Role-based filtering
+    if (!isSuperAdmin(role)) {
+      query.organization = organizationId;
+    }
+
+    const buyer = await BuyerModel.findOne(query);
 
     if (!buyer) {
       throw new Error('Buyer not found');
@@ -157,12 +163,18 @@ export const updateBuyerById = async (req: Request, res: Response) => {
   try {
     const body = updateBuyerValidator.parse(req.body);
     const { id } = req.params;
-    const { organizationId } = res.locals.user;
+    const { organizationId, role } = res.locals.user;
 
-    const existingBuyer = await BuyerModel.findOne({
+    const query: any = {
       _id: id,
-      organization: organizationId,
-    });
+    };
+
+    // Role-based filtering
+    if (!isSuperAdmin(role)) {
+      query.organization = organizationId;
+    }
+
+    const existingBuyer = await BuyerModel.findOne(query);
 
     if (!existingBuyer) {
       throw new Error('Buyer not found');
@@ -219,12 +231,18 @@ export const updateBuyerById = async (req: Request, res: Response) => {
 export const archiveBuyerById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { organizationId } = res.locals.user;
+    const { organizationId, role } = res.locals.user;
 
-    const existingBuyer = await BuyerModel.findOne({
+    const query: any = {
       _id: id,
-      organization: organizationId,
-    });
+    };
+
+    // Role-based filtering
+    if (!isSuperAdmin(role)) {
+      query.organization = organizationId;
+    }
+
+    const existingBuyer = await BuyerModel.findOne(query);
 
     if (!existingBuyer) {
       throw new Error('Buyer not found');
@@ -251,12 +269,18 @@ export const archiveBuyerById = async (req: Request, res: Response) => {
 export const unarchiveBuyerById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { organizationId } = res.locals.user;
+    const { organizationId, role } = res.locals.user;
 
-    const existingBuyer = await BuyerModel.findOne({
+    const query: any = {
       _id: id,
-      organization: organizationId,
-    });
+    };
+
+    // Role-based filtering
+    if (!isSuperAdmin(role)) {
+      query.organization = organizationId;
+    }
+
+    const existingBuyer = await BuyerModel.findOne(query);
 
     if (!existingBuyer) {
       throw new Error('Buyer not found');

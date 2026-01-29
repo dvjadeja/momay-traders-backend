@@ -117,11 +117,17 @@ export const createSupplier = async (req: Request, res: Response) => {
 export const getSupplierById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { organizationId } = res.locals.user;
-    const supplier = await SupplierModel.findOne({
+    const { organizationId, role } = res.locals.user;
+    const query: any = {
       _id: id,
-      organization: organizationId,
-    });
+    };
+
+    // Role-based filtering
+    if (!isSuperAdmin(role)) {
+      query.organization = organizationId;
+    }
+
+    const supplier = await SupplierModel.findOne(query);
 
     if (!supplier) {
       throw new Error('Supplier not found');
@@ -147,14 +153,20 @@ const updateSupplierValidator = z.object({
 export const updateSupplierById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { organizationId } = res.locals.user;
+    const { organizationId, role } = res.locals.user;
     const body = updateSupplierValidator.parse(req.body);
 
     // Check if the supplier exists
-    const existingSupplier = await SupplierModel.findOne({
+    const query: any = {
       _id: id,
-      organization: organizationId,
-    });
+    };
+
+    // Role-based filtering
+    if (!isSuperAdmin(role)) {
+      query.organization = organizationId;
+    }
+
+    const existingSupplier = await SupplierModel.findOne(query);
 
     if (!existingSupplier) {
       throw new Error('Supplier not found');
@@ -203,12 +215,18 @@ export const updateSupplierById = async (req: Request, res: Response) => {
 export const archiveSupplierById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { organizationId } = res.locals.user;
+    const { organizationId, role } = res.locals.user;
 
-    const supplier = await SupplierModel.findOne({
+    const query: any = {
       _id: id,
-      organization: organizationId,
-    });
+    };
+
+    // Role-based filtering
+    if (!isSuperAdmin(role)) {
+      query.organization = organizationId;
+    }
+
+    const supplier = await SupplierModel.findOne(query);
 
     if (!supplier) {
       throw new Error('Supplier not found');
@@ -235,12 +253,18 @@ export const archiveSupplierById = async (req: Request, res: Response) => {
 export const unarchiveSupplierById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { organizationId } = res.locals.user;
+    const { organizationId, role } = res.locals.user;
 
-    const supplier = await SupplierModel.findOne({
+    const query: any = {
       _id: id,
-      organization: organizationId,
-    });
+    };
+
+    // Role-based filtering
+    if (!isSuperAdmin(role)) {
+      query.organization = organizationId;
+    }
+
+    const supplier = await SupplierModel.findOne(query);
 
     if (!supplier) {
       throw new Error('Supplier not found');
