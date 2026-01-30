@@ -85,7 +85,11 @@ const organizationSchema = new Schema(
     },
 
     // Stats
-    creditAvailable: {
+    availableBalance: {
+      type: Number,
+      default: 0,
+    },
+    totalExpenseAmount: {
       type: Number,
       default: 0,
     },

@@ -61,7 +61,8 @@ export const createOrganization = async (req: Request, res: Response) => {
       .optional(),
 
     // Stats
-    creditAvailable: z.number().optional(),
+    availableBalance: z.number().optional(),
+    totalExpenseAmount: z.number().optional(),
     totalPurchaseAmount: z.number().optional(),
     totalSaleAmount: z.number().optional(),
     totalProfit: z.number().optional(),
@@ -101,7 +102,8 @@ export const createOrganization = async (req: Request, res: Response) => {
       subscriptionStartDate: body.subscriptionStartDate,
       subscriptionEndDate: body.subscriptionEndDate,
       subscriptionStatus: body.subscriptionStatus,
-      creditAvailable: body.creditAvailable,
+      availableBalance: body.availableBalance,
+      totalExpenseAmount: body.totalExpenseAmount,
       totalPurchaseAmount: body.totalPurchaseAmount,
       totalSaleAmount: body.totalSaleAmount,
       totalProfit: body.totalProfit,
@@ -211,7 +213,8 @@ const updateOrganizationSchema = z.object({
     .optional(),
 
   // Stats
-  creditAvailable: z.number().optional(),
+  availableBalance: z.number().optional(),
+  totalExpenseAmount: z.number().optional(),
   totalPurchaseAmount: z.number().optional(),
   totalSaleAmount: z.number().optional(),
   totalProfit: z.number().optional(),
@@ -314,8 +317,12 @@ export const updateOrganization = async (req: Request, res: Response) => {
       existingOrganization.subscriptionStatus = body.subscriptionStatus;
     }
 
-    if (body.creditAvailable) {
-      existingOrganization.creditAvailable = body.creditAvailable;
+    if (body.availableBalance) {
+      existingOrganization.availableBalance = body.availableBalance;
+    }
+
+    if (body.totalExpenseAmount) {
+      existingOrganization.totalExpenseAmount = body.totalExpenseAmount;
     }
 
     if (body.totalPurchaseAmount) {
